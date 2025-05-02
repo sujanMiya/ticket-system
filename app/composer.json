@@ -1,5 +1,5 @@
 {
-    "name": "sujan/ticket",
+    "name": "sujan/micro",
     "description": "Ticket system",
     "type": "project",
     "require-dev": {
@@ -8,9 +8,19 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Sujan\\Ticket\\": "src/"
-        }
+            "Core\\": "src/Core/",
+            "App\\": "app/"
+        },
+        "files": [
+            "src/Helpers/functions.php"
+        ]
+    },
+    "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
     },
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "vlucas/phpdotenv": "5.6.x-dev"
+    }
 }
