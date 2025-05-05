@@ -69,10 +69,9 @@
           document.getElementById('successContainer').textContent = response.message;
           document.getElementById('successContainer').classList.remove('hidden');
           
-          // Redirect to login after 2 seconds
           setTimeout(() => {
             window.location.href = '/login';
-          }, 2000);
+          }, 1000);
         } else {
           throw new Error(response.message);
         }

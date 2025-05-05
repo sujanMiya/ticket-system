@@ -30,6 +30,12 @@
     <button
         class="w-full bg-indigo-500 text-white text-sm font-bold py-2 px-4 rounded-md hover:bg-indigo-600 transition duration-300"
         type="submit">Login</button>
+        <p class="flex justify-center mt-6 text-sm text-slate-600">
+        Already have no an account?
+        <a href="/register" class="ml-1 text-sm font-semibold text-slate-700 underline">
+          Register here
+        </a>
+      </p>
 </form>
 
 <script>

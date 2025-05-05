@@ -84,9 +84,9 @@ class HomeController {
         try {
             $json = file_get_contents('php://input');
             $dataPost = json_decode($json, true);
-            // if (empty($data['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
-            //     throw new \Exception('Invalid CSRF token');
-            // }
+            if (empty($dataPost['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
+                throw new \Exception('Invalid CSRF token');
+            }
             $data = [
                 'email' => $dataPost['email'] ?? '',
                 'password' => $dataPost['password'] ?? ''
