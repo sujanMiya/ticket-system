@@ -57,7 +57,8 @@
         name: form.name.value,
         email: form.email.value,
         password: form.password.value,
-        confirm_password: form.confirm_password.value
+        confirm_password: form.confirm_password.value,
+        csrf_token: form.csrf_token.value 
       };
 
       try {

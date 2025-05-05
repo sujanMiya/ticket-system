@@ -5,7 +5,7 @@ use PDO;
 use PDOException;
 
 class Database {
-    private $connection;
+    public $connection;
 
     public function __construct(array $config) {
         $dsn = "{$config['driver']}:host={$config['host']};dbname={$config['database']};port={$config['port']}";
@@ -29,12 +29,15 @@ class Database {
     public function table($table) {
         return new QueryBuilder($this, $table);
     }
+    public function lastInsertId() {
+        return $this->connection->lastInsertId();
+    }
 }
 
 class QueryBuilder {
     private $db;
     private $table;
-    private $conditions = [];
+    public $conditions = [];
     private $params = [];
 
     public function __construct(Database $db, $table) {

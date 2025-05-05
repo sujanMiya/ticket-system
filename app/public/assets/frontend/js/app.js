@@ -12,7 +12,8 @@ class ApiClient {
 
     static async post(url, data) {
         // Get CSRF token from form or meta tag
-        const csrfToken = data.csrf_token || document.querySelector('meta[name="csrf-token"]').content;
+        const csrfToken = document.getElementById('csrf_token').value;
+        console.log('CSRF Token:', csrfToken);
         
         const response = await fetch(url, {
             method: 'POST',

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Core;
 use Core\Database;
 class App {
@@ -7,15 +9,11 @@ class App {
     // private $db;
 
     public function __construct() {
-
         $this->router = new Router();
-        // $this->db = new Database(require __DIR__ . '/../../app/config/database.php');
     }
 
     public static function db(): Database {
         if (!isset(self::$db)) {
-            // self::$db = new Database(require __DIR__ .'/../config/database.php');
-            
             self::$db = new Database(require __DIR__ . '/../../app/config/database.php');
         }
         return self::$db;

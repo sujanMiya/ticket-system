@@ -6,12 +6,18 @@ use Core\View;
 use Core\Validator;
 use App\Models\User;
 
-class AuthController {
+class HomeController {
     protected User $userModel;
     protected Validator $validator;
     public function __construct() {
         $this->userModel = new User();
         $this->validator = new Validator();
+    }
+    public function dashboard(){
+        requireAuth();
+        $user = currentUser();
+
+        return View::render('layouts/master', ['user' => $user]);
     }
     public function index() { 
         $users = $this->userModel->show();
@@ -99,12 +105,10 @@ class AuthController {
                 throw new \Exception('Invalid email or password');
             }
 
-            $_SESSION['user'] = [
-                'id' => $user['id'],
-                'name' => $user['name'],
-                'email' => $user['email'],
-                'role' => $user['role'] ?? 'user'
-            ];
+            // Set session variables
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_role'] = $user['role'];
 
             // Return success response
             echo json_encode([
@@ -119,26 +123,6 @@ class AuthController {
                 'message' => $e->getMessage()
             ]);
         }
-    }
-    public function logout() {
-        $_SESSION = [];
-    
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(), 
-                '', 
-                time() - 42000,
-                $params["path"], 
-                $params["domain"],
-                $params["secure"], 
-                $params["httponly"]
-            );
-        }
-        session_destroy();
-        
-        header('Location: /login');
-        exit;
     }
     public function indexw() {
         $users = $this->db->table('users')
