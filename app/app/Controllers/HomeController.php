@@ -93,13 +93,11 @@ class HomeController {
     }
     public function showTicketList() {
         requireAuth();
-        $user = currentUser();
-    
-        $getDepartments = $this->departmentModel->getDepartment();
-        if (!$getDepartments) {
-            $getDepartments = [];
+        $getTickets = $this->ticketModel->show();
+        if (!$getTickets) {
+            $getTickets = [];
         }
-        return View::render('layouts/user/ticket', ['user' => $user, 'getDepartments' => $getDepartments]);
+        return View::render('layouts/user/ticketList', ['user' => currentUser(), 'getTickets' => $getTickets]);
     }
     
 }
