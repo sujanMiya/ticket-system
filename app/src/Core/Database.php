@@ -39,12 +39,17 @@ class QueryBuilder {
     private $table;
     public $conditions = [];
     private $params = [];
+    private $columns  = ['*'];
 
     public function __construct(Database $db, $table) {
         $this->db = $db;
         $this->table = $table;
     }
 
+    public function select(array $columns = ['*']) {
+        $this->columns = $columns;
+        return $this;
+    }
     public function where($column, $operator, $value) {
         $this->conditions[] = "{$column} {$operator} ?";
         $this->params[] = $value;
@@ -52,10 +57,13 @@ class QueryBuilder {
     }
 
     public function get() {
-        $sql = "SELECT * FROM {$this->table}";
+        $selectedColumns = implode(', ', $this->columns);
+        $sql = "SELECT {$selectedColumns} FROM {$this->table}";
+        
         if ($this->conditions) {
             $sql .= " WHERE " . implode(' AND ', $this->conditions);
         }
+        
         return $this->db->query($sql, $this->params)->fetchAll();
     }
 
