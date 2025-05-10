@@ -10,6 +10,8 @@ $router->add('GET', '/dashboard', 'HomeController@dashboard');
 $router->add('GET', '/ticket', 'HomeController@ticketForm');
 $router->add('POST', '/ticket', 'HomeController@ticketStore');
 $router->add('GET', '/ticket/list', 'HomeController@showTicketList');
+$router->add('GET', '/admin/ticket/lists', 'HomeController@allTicketLists');
+$router->add('GET', '/admin/ticket/list/{id}', 'HomeController@showTicketDetailsAdmin');
 
 $router->add('GET', '/logout', 'AuthController@logout');
 $router->add('GET', '/users', 'UserController@index');

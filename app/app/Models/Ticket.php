@@ -20,10 +20,20 @@ class Ticket {
                       ->orderBy('created_at', 'desc')
                       ->limit(10)
                       ->get();
-                    //   return $result ? (array) $result : null;
+    }
+    public function allTickets(int $page = 1, int $perPage = 15): ?array {
+        return $this->db->table('tickets')
+                      ->select(['id', 'subject', 'created_at', 'status','customer_id'])
+                      ->orderBy('created_at', 'desc')
+                      ->paginate($page, $perPage);
     }
     public function create(array $data) {
         return $this->db->table('tickets')
                        ->insert($data);
+    }
+    public function findById(int $id): ?object  {
+        return $this->db->table('tickets')
+                      ->where('id', '=', $id)
+                      ->first();
     }
 }

@@ -22,16 +22,16 @@ function json_response($data = null, $status = 200) {
     exit;
 }
 
-function generateCsrfToken() {
+function generateCsrfToken(): string
+{
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     return $_SESSION['csrf_token'];
 }
-function validateCsrfToken($token) {
-    if (isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token)) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        return true;
-    }
-    return false;
+
+function validateCsrfToken(string $token): bool
+{
+    return isset($_SESSION['csrf_token']) && 
+           hash_equals($_SESSION['csrf_token'], $token);
 }

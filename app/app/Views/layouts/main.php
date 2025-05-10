@@ -178,8 +178,9 @@
                         </div>
     
                         <div class="p-2 md:block text-left">
+
                             <h2 class="text-sm font-semibold text-gray-800"><?php echo htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8'); ?></h2>
-                            <p class="text-xs text-gray-500"><?php echo htmlspecialchars($user['role'], ENT_QUOTES, 'UTF-8'); ?></p>
+                            <p class="text-xs text-gray-500"><?php echo htmlspecialchars($getUser->role, ENT_QUOTES, 'UTF-8'); ?></p>
                         </div>                
                     </button>
                     <ul class="dropdown-menu shadow-md shadow-black/5 z-30 hidden py-1.5 rounded-md bg-white border border-gray-100 w-full max-w-[140px]">

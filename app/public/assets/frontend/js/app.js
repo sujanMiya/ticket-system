@@ -23,7 +23,8 @@ class ApiClient {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': csrfToken
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
+            credentials: 'include'
         });
         return response.json();
     }

@@ -57,6 +57,7 @@ class HomeController {
         try {
             $json = file_get_contents('php://input');
             $dataPost = json_decode($json, true);
+            
             if (empty($dataPost['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
                 throw new \Exception('Invalid CSRF token');
             }
@@ -101,6 +102,30 @@ class HomeController {
         }
         $getUser = $this->userModel->findById();
         return View::render('layouts/user/ticketList', ['user' => currentUser(), 'getTickets' => $getTickets,'getUser' => $getUser]);
+    }
+    public function allTicketLists() {
+        requireAuth();
+
+        $page = (int) ($_GET['page'] ?? 1);
+        $perPage = 15;
+        $getTickets = $this->ticketModel->allTickets($page, $perPage);
+        if (!$getTickets) {
+            $getTickets = [];
+        }
+        $user = currentUser();
+        $getUser = $this->userModel->findById();
+        return View::render('layouts/admin/ticketList', ['user'=>$user,'getTickets' => $getTickets['data'],'getUser' => $getUser]);
+    }
+    public function showTicketDetailsAdmin($id) {
+        requireAuth();
+        $user = currentUser();
+        $getUser = $this->userModel->findById();
+        $ticketId = is_array($id) ? $id['id'] : $id;
+        $getTicket = $this->ticketModel->findById((int)$ticketId);
+        if (!$getTicket) {
+            $getTicket = [];
+        }
+        return View::render('layouts/admin/ticketDetails', ['user' => $user, 'getTicket' => $getTicket,'getUser' => $getUser]);
     }
     
 }

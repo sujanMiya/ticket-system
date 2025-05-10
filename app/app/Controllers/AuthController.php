@@ -78,6 +78,7 @@ class AuthController {
         try {
             $json = file_get_contents('php://input');
             $dataPost = json_decode($json, true);
+            
             if (empty($dataPost['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
                 throw new \Exception('Invalid CSRF token');
             }
@@ -105,7 +106,6 @@ class AuthController {
                 'email' => $user['email']
             ];
 
-            // Return success response
             echo json_encode([
                 'success' => true,
                 'message' => 'Login successful! Redirecting to dashboard...'

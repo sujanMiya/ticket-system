@@ -20,12 +20,12 @@
     <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
         <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-          type="email" id="email" name="email" placeholder="john@example.com" required>
+          type="email" id="email" name="email" placeholder="Enter your Email" required>
     </div>
     <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
         <input class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-          type="password" id="password" name="password" placeholder="********" required>
+          type="password" id="password" name="password" placeholder="Enter your Password" required>
     </div>
     <button
         class="w-full bg-indigo-500 text-white text-sm font-bold py-2 px-4 rounded-md hover:bg-indigo-600 transition duration-300"
@@ -47,6 +47,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         password: this.password.value,
         csrf_token: this.csrf_token.value
     };
+    console.log('data ->>>>>>>>>> ',formData);
 
     try {
            const response = await ApiClient.post('/login', formData);
@@ -59,7 +60,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             errorContainer.classList.remove('hidden');
         }
     } catch (error) {
-        console.error('Error:', error);
+        document.getElementById('successContainer').classList.add('hidden');
+        document.getElementById('errorContainer').textContent = error.message;
+        document.getElementById('errorContainer').classList.remove('hidden');
     }
 });
 </script>
