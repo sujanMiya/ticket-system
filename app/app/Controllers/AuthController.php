@@ -102,8 +102,7 @@ class AuthController {
             $_SESSION['user'] = [
                 'id' => $user['id'],
                 'name' => $user['name'],
-                'email' => $user['email'],
-                'role' => $user['role'] ?? 'user'
+                'email' => $user['email']
             ];
 
             // Return success response

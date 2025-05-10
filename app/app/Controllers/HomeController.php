@@ -22,8 +22,9 @@ class HomeController {
     public function dashboard(){
         requireAuth();
         $user = currentUser();
+       $getUser = $this->userModel->findById();
 
-        return View::render('layouts/master', ['user' => $user]);
+        return View::render('layouts/master', ['user' => $user, 'getUser' => $getUser]);
     }
     public function index() { 
         $users = $this->userModel->show();
@@ -44,7 +45,8 @@ class HomeController {
         if (!$getDepartments) {
             $getDepartments = [];
         }
-        return View::render('layouts/user/ticket', ['user' => $user, 'getDepartments' => $getDepartments]);
+        $getUser = $this->userModel->findById();
+        return View::render('layouts/user/ticket', ['user' => $user, 'getDepartments' => $getDepartments, 'getUser' => $getUser]);
     }
     public function ticketStore() {
         requireAuth();
@@ -97,7 +99,8 @@ class HomeController {
         if (!$getTickets) {
             $getTickets = [];
         }
-        return View::render('layouts/user/ticketList', ['user' => currentUser(), 'getTickets' => $getTickets]);
+        $getUser = $this->userModel->findById();
+        return View::render('layouts/user/ticketList', ['user' => currentUser(), 'getTickets' => $getTickets,'getUser' => $getUser]);
     }
     
 }

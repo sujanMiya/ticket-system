@@ -23,6 +23,27 @@ class User {
         return $this->db->table('users')
                       ->get();
     }
+    public function findById(){
+        return $this->db->table('users')
+                      ->where('id', '=', currentUser()['id'])
+                      ->first();
+         
+    }
+    public function update(int $id, array $data): bool {
+        $updateData = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        
+        if (!empty($data['password'])) {
+            $updateData['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+        }
+        
+        return $this->db->table('users')
+                       ->where('id', '=', $id)
+                       ->update($updateData);
+    }
     public function create(array $data) {
         $insertData = [
             'name' => $data['name'],
