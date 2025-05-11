@@ -5,19 +5,26 @@ namespace App\Controllers;
 use Core\View;
 use Core\Validator;
 use App\Models\User;
+use App\Models\Department;
+use App\Models\Ticket;
 
 class HomeController {
     protected User $userModel;
     protected Validator $validator;
+    protected Department $departmentModel;
+    protected Ticket $ticketModel;
     public function __construct() {
         $this->userModel = new User();
         $this->validator = new Validator();
+        $this->departmentModel = new Department();
+        $this->ticketModel = new Ticket();
     }
     public function dashboard(){
         requireAuth();
         $user = currentUser();
+       $getUser = $this->userModel->findById();
 
-        return View::render('layouts/master', ['user' => $user]);
+        return View::render('layouts/master', ['user' => $user, 'getUser' => $getUser]);
     }
     public function index() { 
         $users = $this->userModel->show();
@@ -30,103 +37,138 @@ class HomeController {
     public function showLoginForm() {         
      include __DIR__ . '/../Views/login.php';
     }
-    public function register() {
+    public function ticketForm() {
+        requireAuth();
+        $user = currentUser();
+    
+        $getDepartments = $this->departmentModel->getDepartment();
+        if (!$getDepartments) {
+            $getDepartments = [];
+        }
+        $getUser = $this->userModel->findById();
+        return View::render('layouts/user/ticket', ['user' => $user, 'getDepartments' => $getDepartments, 'getUser' => $getUser]);
+    }
+    public function ticketStore() {
+        requireAuth();
+        $user = currentUser();
+    
         header('Content-Type: application/json');
         
         try {
             $json = file_get_contents('php://input');
             $dataPost = json_decode($json, true);
-            // if (empty($data['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
-            //     throw new \Exception('Invalid CSRF token');
-            // }
+            
+            if (empty($dataPost['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
+                throw new \Exception('Invalid CSRF token');
+            }
             $data = [
-                'name' => $dataPost['name'] ?? '',
-                'email' => $dataPost['email'] ?? '',
-                'password' => $dataPost['password'] ?? '',
-                'confirm_password' => $dataPost['confirm_password'] ?? ''
+                'subject' => $dataPost['subject'] ?? '',
+                'description' => $dataPost['description'] ?? '',
+                'status' => 'open',
+                'priority' => $dataPost['priority'] ?? '',
+                'department_id' => $dataPost['department'] ?? null,
+                'customer_id' => $user['id'] ?? '',
+                'assigned_agent_id'=>null,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
             ];
-
+    
             $rules = [
-                'name' => 'required|min:3|max:20',
-                'email' => 'required|email',
-                'password' => 'required|min:8',
-                'confirm_password' => 'required'
+                'subject' => 'required',
+                'description' => 'required',
+                'status' => 'open',
+                'priority' => 'required',
+                'department_id' => 'required',
+                'customer_id' => 'required',
+                'created_at' => 'required',
+                'updated_at' => 'required'
             ];
             if (!$this->validator->validate($data, $rules)) {
                 throw new \Exception(implode(' ', array_merge(...array_values($this->validator->errors()))));
             }
-
-            if ($data['password'] !== $data['confirm_password']) {
-                throw new \Exception('Passwords do not match');
-            }
-            if ($this->userModel->findByEmail($data['email'])) {
-                throw new \Exception('Email already registered');
-            }
-            $this->userModel->create($data);
-
-            // Return success response
-            echo json_encode([
-                'success' => true,
-                'message' => 'Registration successful! Redirecting to login...'
-            ]);
-
+    
+            $this->ticketModel->create($data);
+    
+            echo json_encode(['status' => 'success', 'message' => 'Ticket created successfully']);
         } catch (\Exception $e) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
-    public function login() {
+    public function showTicketList() {
+        requireAuth();
+        $getTickets = $this->ticketModel->show();
+        if (!$getTickets) {
+            $getTickets = [];
+        }
+        $getUser = $this->userModel->findById();
+        return View::render('layouts/user/ticketList', ['user' => currentUser(), 'getTickets' => $getTickets,'getUser' => $getUser]);
+    }
+    public function allTicketLists() {
+        requireAuth();
+
+        $page = (int) ($_GET['page'] ?? 1);
+        $perPage = 15;
+        $getTickets = $this->ticketModel->allTickets($page, $perPage);
+        if (!$getTickets) {
+            $getTickets = [];
+        }
+        $user = currentUser();
+        $getUser = $this->userModel->findById();
+        return View::render('layouts/admin/ticketList', ['user'=>$user,'getTickets' => $getTickets['data'],'getUser' => $getUser]);
+    }
+    public function showTicketDetailsAdmin($id) {
+        requireAuth();
+        $user = currentUser();
+        $getUser = $this->userModel->findById();
+        $agentUsers = $this->userModel->agentUser();
+        if (!$agentUsers) {
+            $agentUsers = [];
+        }
+        $getTicket = $this->ticketModel->findById((int)$id['id']);
+        if (!$getTicket) {
+            $getTicket = [];
+        }
+        return View::render('layouts/admin/ticketDetails', [
+            'user' => $user,
+            'getTicket' => $getTicket,
+            'getUser' => $getUser,
+            'agentUsers' => $agentUsers['data']
+        ]);
+    }
+    public function ticketAssign() {
+        requireAuth();
+        $user = currentUser();
+    
         header('Content-Type: application/json');
         
         try {
             $json = file_get_contents('php://input');
             $dataPost = json_decode($json, true);
-            // if (empty($data['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
-            //     throw new \Exception('Invalid CSRF token');
-            // }
+            
+            if (empty($dataPost['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
+                throw new \Exception('Invalid CSRF token');
+            }
             $data = [
-                'email' => $dataPost['email'] ?? '',
-                'password' => $dataPost['password'] ?? ''
+                'assigned_agent_id' => $dataPost['assignment'] ?? null,
+                'status' => 'open',
+                'updated_at' => date('Y-m-d H:i:s')
             ];
-
+    
             $rules = [
-                'email' => 'required|email',
-                'password' => 'required|min:8'
+                'assigned_agent_id' => 'required',
+                'status' => 'open',
+                'updated_at' => 'required'
             ];
             if (!$this->validator->validate($data, $rules)) {
                 throw new \Exception(implode(' ', array_merge(...array_values($this->validator->errors()))));
             }
-
-            $user = $this->userModel->findByEmail($data['email']);
-            if (!$user || !password_verify($data['password'], $user['password'])) {
-                throw new \Exception('Invalid email or password');
-            }
-
-            // Set session variables
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_role'] = $user['role'];
-
-            // Return success response
-            echo json_encode([
-                'success' => true,
-                'message' => 'Login successful! Redirecting to dashboard...'
-            ]);
-
+    
+            $this->ticketModel->update((int)$dataPost['ticket_id'], $data);
+    
+            echo json_encode(['status' => 'success', 'message' => 'Ticket assigned successfully']);
         } catch (\Exception $e) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
-    }
-    public function indexw() {
-        $users = $this->db->table('users')
-            ->get();
-        return View::render('layouts/main', ['users' => $users]);
-    } 
+    }   
+    
 }

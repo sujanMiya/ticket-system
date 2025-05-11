@@ -30,9 +30,9 @@ class AuthController {
         try {
             $json = file_get_contents('php://input');
             $dataPost = json_decode($json, true);
-            // if (empty($data['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
-            //     throw new \Exception('Invalid CSRF token');
-            // }
+            if (empty($dataPost['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
+                throw new \Exception('Invalid CSRF token');
+            }
             $data = [
                 'name' => $dataPost['name'] ?? '',
                 'email' => $dataPost['email'] ?? '',
@@ -78,9 +78,10 @@ class AuthController {
         try {
             $json = file_get_contents('php://input');
             $dataPost = json_decode($json, true);
-            // if (empty($data['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
-            //     throw new \Exception('Invalid CSRF token');
-            // }
+            
+            if (empty($dataPost['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
+                throw new \Exception('Invalid CSRF token');
+            }
             $data = [
                 'email' => $dataPost['email'] ?? '',
                 'password' => $dataPost['password'] ?? ''
@@ -102,11 +103,9 @@ class AuthController {
             $_SESSION['user'] = [
                 'id' => $user['id'],
                 'name' => $user['name'],
-                'email' => $user['email'],
-                'role' => $user['role'] ?? 'user'
+                'email' => $user['email']
             ];
 
-            // Return success response
             echo json_encode([
                 'success' => true,
                 'message' => 'Login successful! Redirecting to dashboard...'
