@@ -1,9 +1,10 @@
 <h1 class=" mx-auto p-6 text-center">Support Ticket</h1>
-<form id="ticketFormDetails" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md space-y-4 mt-1 ">
+<form id="ticketReplyFormDetails" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md space-y-4 mt-1 ">
   <!-- Text Input -->
   <input type="hidden" id="csrf_token" name="csrf_token" value="<?= generateCsrfToken() ?>">
   <div id="messageContainer" class="hidden"></div>
   <input type="hidden" id="ticket_id" name="ticket_id" value="<?= $getTicket->id; ?>">
+  <input type="hidden" id="user_id" name="user_id" value="<?= $getUser->id; ?>">
   <div>
     <p class="block text-sm font-medium text-gray-700">Subject</p>
     <p><?php echo htmlspecialchars($getTicket->subject); ?></p>
@@ -14,20 +15,26 @@
     <p><?php echo htmlspecialchars($getTicket->description); ?></p>
   </div>
 
-  <!-- Dropdown Select -->
   <div>
-    <label for="assignment" class="block text-sm font-medium text-gray-700">Assigned Agent</label>
-    <select
-      id="assignment"
-      name="assignment"
-      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-    >
-      <option value="">Please choose</option>
-      <?php foreach ($agentUsers as $agentUser) { ?>
-        <option value="<?php echo htmlspecialchars($agentUser->id); ?>"><?php echo htmlspecialchars($agentUser->name); ?></option>
- <?php     }?>
-    </select>
+    <p class="block text-sm font-medium text-gray-700">Reply</p>
+    <p><?php foreach ($getReply as $getRep) { ?>
+      <?php echo $getRep->message; ?>
+   <?php } ?></p>
   </div>
+
+  <div>
+    <label for="description" class="block text-sm font-medium text-gray-700">Reply</label>
+    <textarea
+      id="message"
+      name="message"
+      rows="6"
+      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+      placeholder="Write your message here"
+    ></textarea>
+  </div>
+
+  <!-- Dropdown Select -->
+
 
 
 
@@ -40,7 +47,7 @@
   </button>
 </form>
 <script>
-    document.getElementById('ticketFormDetails').addEventListener('submit', async function(e) {
+    document.getElementById('ticketReplyFormDetails').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const form = e.target;
@@ -52,16 +59,17 @@
     
     try {
         const formData = {
-            assignment: form.elements.assignment.value,
+            user_id: form.elements.user_id.value,
+            message: form.elements.message.value,
             ticket_id: form.elements.ticket_id.value,
             csrf_token: form.elements.csrf_token.value
         };
         
-        const response = await ApiClient.post('/ticket/assign', formData);
+        const response = await ApiClient.post('/ticket/reply', formData);
         if (!response.success) {
             throw new Error(response.message);
         }
-        showMessage('Ticket updated successfully!', 'success');
+        showMessage('Ticket reply successfully!', 'success');
 
         form.reset();
         

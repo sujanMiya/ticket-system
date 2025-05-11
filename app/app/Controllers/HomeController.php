@@ -120,12 +120,55 @@ class HomeController {
         requireAuth();
         $user = currentUser();
         $getUser = $this->userModel->findById();
-        $ticketId = is_array($id) ? $id['id'] : $id;
-        $getTicket = $this->ticketModel->findById((int)$ticketId);
+        $agentUsers = $this->userModel->agentUser();
+        if (!$agentUsers) {
+            $agentUsers = [];
+        }
+        $getTicket = $this->ticketModel->findById((int)$id['id']);
         if (!$getTicket) {
             $getTicket = [];
         }
-        return View::render('layouts/admin/ticketDetails', ['user' => $user, 'getTicket' => $getTicket,'getUser' => $getUser]);
+        return View::render('layouts/admin/ticketDetails', [
+            'user' => $user,
+            'getTicket' => $getTicket,
+            'getUser' => $getUser,
+            'agentUsers' => $agentUsers['data']
+        ]);
     }
+    public function ticketAssign() {
+        requireAuth();
+        $user = currentUser();
+    
+        header('Content-Type: application/json');
+        
+        try {
+            $json = file_get_contents('php://input');
+            $dataPost = json_decode($json, true);
+            
+            if (empty($dataPost['csrf_token']) || !validateCsrfToken($dataPost['csrf_token'])) {
+                throw new \Exception('Invalid CSRF token');
+            }
+            $data = [
+                'assigned_agent_id' => $dataPost['assignment'] ?? null,
+                'status' => 'open',
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+    
+            $rules = [
+                'assigned_agent_id' => 'required',
+                'status' => 'open',
+                'updated_at' => 'required'
+            ];
+            if (!$this->validator->validate($data, $rules)) {
+                throw new \Exception(implode(' ', array_merge(...array_values($this->validator->errors()))));
+            }
+    
+            $this->ticketModel->update((int)$dataPost['ticket_id'], $data);
+    
+            echo json_encode(['status' => 'success', 'message' => 'Ticket assigned successfully']);
+        } catch (\Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }   
     
 }

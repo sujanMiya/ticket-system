@@ -29,6 +29,13 @@ class User {
                       ->first();
          
     }
+    public function agentUser(int $page = 1, int $perPage = 10): ?array {
+        return  $this->db->table('users')
+                      ->select(['id', 'name', 'email', 'role']) 
+                      ->where('role', '=', 'agent')
+                      ->orderBy('created_at', 'desc')
+                      ->paginate($page, $perPage);
+    }
     public function update(int $id, array $data): bool {
         $updateData = [
             'name' => $data['name'],

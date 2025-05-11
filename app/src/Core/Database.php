@@ -168,4 +168,32 @@ class QueryBuilder {
         $this->db->query($sql, array_values($data));
         return $this->db->connection->lastInsertId();
     }
+     /**
+     * Update records in the database
+     * @param array $data Associative array of column => value pairs to update
+     * @return int Number of affected rows
+     */
+    public function update(array $data) {
+        if (empty($data)) {
+            throw new \InvalidArgumentException('No data provided for update');
+        }
+
+        $setParts = [];
+        $params = [];
+        
+        foreach ($data as $column => $value) {
+            $setParts[] = "{$column} = ?";
+            $params[] = $value;
+        }
+        
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $setParts);
+        
+        if ($this->conditions) {
+            $sql .= " WHERE " . implode(' AND ', $this->conditions);
+            $params = array_merge($params, $this->params);
+        }
+        
+        $stmt = $this->db->query($sql, $params);
+        return $stmt->rowCount();
+    }
 }
